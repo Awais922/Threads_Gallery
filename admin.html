@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threads Gallery | Admin Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-lg bg-white/90 backdrop-blur-xl border border-teal-100/60 rounded-3xl shadow-xl p-8 sm:p-10 text-center">
+        <img src="logo.png" alt="Threads Gallery Logo" class="mx-auto h-24 w-24 object-cover rounded-full mb-3">
+        <h1 class="text-2xl font-bold tracking-tight text-teal-950 mb-2">Admin Workspace</h1>
+        <p class="text-sm text-slate-500 mb-6">Base structure ready as requested. Module navigation and dashboard tools will be wired up next.</p>
+        
+        <a href="index.html" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-xl shadow-md transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Login
+        </a>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        console.log("Threads Gallery Admin Portal Initialized");
+    </script>
+</body>
+</html>

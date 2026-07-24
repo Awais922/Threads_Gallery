@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threads Gallery | Home</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-teal-700 selection:text-white">
+
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-teal-100/60 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="home.html" class="flex items-center gap-3 group">
+                <div class="w-14 h-14 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
+                    <img src="logo.png" alt="Threads Gallery Logo" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/f0fdfa/0f766e?text=TG';">
+                </div>
+                <span class="text-xl font-bold tracking-tight text-teal-950">Threads Gallery</span>
+            </a>
+
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+                <a href="home.html" class="text-teal-700 font-semibold transition">Home</a>
+                <a href="#" class="hover:text-teal-700 transition">Collections</a>
+                <a href="#" class="hover:text-teal-700 transition">Toddlers (Coming Soon)</a>
+                <a href="#" class="hover:text-teal-700 transition">Track Order</a>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium rounded-xl transition">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section class="relative overflow-hidden bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100/40 py-20 lg:py-28">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-2xl animate-fade-in">
+                <span class="inline-block py-1 px-3 rounded-full bg-teal-100 text-teal-800 text-xs font-semibold uppercase tracking-wider mb-4">
+                    New Luxury Unstitched Lawn
+                </span>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-teal-950 leading-tight mb-6">
+                    Timeless Elegance, Designed For You.
+                </h1>
+                <p class="text-lg text-slate-600 mb-8 leading-relaxed">
+                    Explore our exclusive curation of unstitched masterpieces. Premium fabrics crafted to match your refined style.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="#collections" class="px-8 py-4 bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-2xl shadow-xl shadow-teal-700/20 transition-all text-center flex items-center justify-center gap-2">
+                        <span>Explore Collection</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        lucide.createIcons();
+        console.log("Threads Gallery Storefront Initialized Successfully");
+    </script>
+</body>
+</html>
