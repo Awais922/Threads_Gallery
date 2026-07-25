@@ -6,6 +6,8 @@
     <title>Threads Gallery | Admin Portal</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase_configuration.js"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -13,20 +15,144 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen text-slate-800 bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.16),_transparent_35%),linear-gradient(135deg,_#f8fafc_0%,_#eefaf8_55%,_#e7f6f4_100%)]">
 
-    <div class="w-full max-w-lg bg-white/90 backdrop-blur-xl border border-teal-100/60 rounded-3xl shadow-xl p-8 sm:p-10 text-center">
-        <img src="logo.png" alt="Threads Gallery Logo" class="mx-auto h-24 w-24 object-cover rounded-full mb-3">
-        <h1 class="text-2xl font-bold tracking-tight text-teal-950 mb-2">Admin Workspace</h1>
-        <p class="text-sm text-slate-500 mb-6">Base structure ready as requested. Module navigation and dashboard tools will be wired up next.</p>
-        
-        <a href="index.html" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-teal-700 hover:bg-teal-800 text-white font-semibold rounded-xl shadow-md transition">
-            <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Login
-        </a>
+    <div class="min-h-screen flex flex-col">
+        <header class="sticky top-0 z-20 border-b border-teal-100/70 bg-white/80 backdrop-blur-xl">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+                <a href="admin.html" class="flex items-center gap-3 group">
+                    <img src="logo.png" alt="Threads Gallery Logo" class="h-12 w-12 object-cover rounded-full ring-2 ring-teal-100 group-hover:scale-105 transition-transform">
+                    <div>
+                        <div class="text-base font-bold tracking-tight text-teal-950">Threads Gallery</div>
+                        <div class="text-xs uppercase tracking-[0.24em] text-teal-700/80">Admin Portal</div>
+                    </div>
+                </a>
+
+                <nav class="hidden md:flex items-center gap-3 text-sm font-medium">
+                    <a href="manage_products.html" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Products</a>
+                    <a href="orders.html" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Orders</a>
+                    <a href="index.html" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Logout</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="flex-1">
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 lg:py-16">
+                <div class="grid lg:grid-cols-[1.25fr_0.75fr] gap-6 lg:gap-8 items-stretch">
+                    <div class="relative overflow-hidden rounded-[2rem] border border-teal-100/70 bg-white/85 backdrop-blur-xl shadow-[0_20px_70px_rgba(13,148,136,0.08)] p-6 sm:p-8 lg:p-10">
+                        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(13,148,136,0.12),_transparent_28%)] pointer-events-none"></div>
+                        <div class="relative">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 text-teal-800 text-xs font-semibold uppercase tracking-[0.2em] mb-5">
+                                <span class="w-2 h-2 rounded-full bg-teal-600"></span>
+                                Admin control center
+                            </div>
+
+                            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-teal-950 leading-tight">
+                                <span id="admin-greeting">Hi Admin</span>
+                            </h1>
+                            <p id="admin-subtitle" class="mt-4 max-w-2xl text-base sm:text-lg text-slate-600 leading-relaxed">
+                                Manage products, review orders, and keep the storefront up to date from one place.
+                            </p>
+
+                            <div class="mt-8 grid sm:grid-cols-2 gap-4">
+                                <a href="manage_products.html" class="group rounded-2xl border border-teal-100 bg-teal-700 px-5 py-5 text-white shadow-lg shadow-teal-700/15 transition hover:-translate-y-0.5 hover:bg-teal-800">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div>
+                                            <div class="text-lg font-semibold">Manage Products</div>
+                                            <div class="mt-2 text-sm text-teal-50/90">Add, edit, remove, and organize catalog items.</div>
+                                        </div>
+                                        <i data-lucide="package-plus" class="w-5 h-5 mt-1"></i>
+                                    </div>
+                                </a>
+
+                                <a href="orders.html" class="group rounded-2xl border border-teal-100 bg-white px-5 py-5 text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-teal-200 hover:bg-teal-50/70">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div>
+                                            <div class="text-lg font-semibold text-teal-950">Order Management</div>
+                                            <div class="mt-2 text-sm text-slate-600">Review order status, customer requests, and fulfilment.</div>
+                                        </div>
+                                        <i data-lucide="clipboard-list" class="w-5 h-5 mt-1 text-teal-700"></i>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <aside class="rounded-[2rem] border border-teal-100/70 bg-white/85 backdrop-blur-xl shadow-[0_20px_70px_rgba(13,148,136,0.08)] p-6 sm:p-8 flex flex-col justify-between gap-6">
+                        <div>
+                            <h2 class="text-sm font-semibold uppercase tracking-[0.2em] text-teal-700">Quick Links</h2>
+                            <div class="mt-4 space-y-3">
+                                <a href="manage_products.html" class="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-4 hover:bg-slate-50 transition">
+                                    <span>
+                                        <span class="block font-semibold text-slate-800">Products</span>
+                                        <span class="block text-sm text-slate-500">Open product workspace</span>
+                                    </span>
+                                    <i data-lucide="arrow-right" class="w-4 h-4 text-teal-700"></i>
+                                </a>
+                                <a href="orders.html" class="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-4 hover:bg-slate-50 transition">
+                                    <span>
+                                        <span class="block font-semibold text-slate-800">Orders</span>
+                                        <span class="block text-sm text-slate-500">Open order workspace</span>
+                                    </span>
+                                    <i data-lucide="arrow-right" class="w-4 h-4 text-teal-700"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <a href="index.html" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-5 py-3.5 font-semibold text-slate-700 hover:bg-slate-50 transition">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            Back to Login
+                        </a>
+                    </aside>
+                </div>
+            </section>
+        </main>
     </div>
 
     <script>
+        const profileTableName = 'profiles';
+
         lucide.createIcons();
+
+        async function loadAdminProfile() {
+            if (!window.supabaseClient) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const { data: authData, error: authError } = await window.supabaseClient.auth.getUser();
+
+            if (authError || !authData?.user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const user = authData.user;
+
+            const { data: profile, error: profileError } = await window.supabaseClient
+                .from(profileTableName)
+                .select('full_name, role')
+                .eq('id', user.id)
+                .maybeSingle();
+
+            if (profileError) {
+                console.warn('Admin profile load failed:', profileError.message);
+            }
+
+            const resolvedRole = profile?.role ? String(profile.role).toLowerCase() : null;
+
+            if (resolvedRole !== 'admin') {
+                window.location.href = 'home.html';
+                return;
+            }
+
+            const displayName = profile?.full_name || user.user_metadata?.full_name || 'Admin';
+            document.getElementById('admin-greeting').textContent = `Hi ${displayName}`;
+            document.getElementById('admin-subtitle').textContent = 'Manage products, review orders, and keep the storefront up to date from one place.';
+        }
+
+        loadAdminProfile();
+
         console.log("Threads Gallery Admin Portal Initialized");
     </script>
 </body>

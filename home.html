@@ -6,6 +6,8 @@
     <title>Threads Gallery | Home</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase_configuration.js"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -34,10 +36,15 @@
 
             <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
                 <a href="home.html" class="text-teal-700 font-semibold transition">Home</a>
-                <a href="#" class="hover:text-teal-700 transition">Collections</a>
-                <a href="#" class="hover:text-teal-700 transition">Toddlers (Coming Soon)</a>
-                <a href="#" class="hover:text-teal-700 transition">Track Order</a>
+                <a href="#collections" class="hover:text-teal-700 transition">Collections</a>
+                <a href="#collections" class="hover:text-teal-700 transition">New Arrivals</a>
+                <a href="#collections" class="hover:text-teal-700 transition">Featured</a>
             </nav>
+
+            <div class="hidden lg:block text-right">
+                <p id="customer-greeting" class="text-sm font-semibold text-teal-700">Hi Customer</p>
+                <p class="text-xs text-slate-500">Welcome back to Threads Gallery</p>
+            </div>
 
             <div class="flex items-center gap-4">
                 <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium rounded-xl transition">
@@ -53,7 +60,7 @@
                 <span class="inline-block py-1 px-3 rounded-full bg-teal-100 text-teal-800 text-xs font-semibold uppercase tracking-wider mb-4">
                     New Luxury Unstitched Lawn
                 </span>
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-teal-950 leading-tight mb-6">
+                <h1 id="hero-greeting" class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-teal-950 leading-tight mb-6">
                     Timeless Elegance, Designed For You.
                 </h1>
                 <p class="text-lg text-slate-600 mb-8 leading-relaxed">
@@ -69,9 +76,137 @@
         </div>
     </section>
 
+    <section id="collections" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
+        <div class="flex items-end justify-between gap-4 mb-6">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-teal-950">Featured Products</h2>
+                <p class="mt-1 text-sm text-slate-500">Browse new arrivals with original and discounted prices.</p>
+            </div>
+        </div>
+
+        <div id="product-grid" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <div class="rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center text-slate-500 sm:col-span-2 xl:col-span-3">Loading products...</div>
+        </div>
+    </section>
+
     <script>
+        const profileTableName = 'profiles';
+        const productTableName = 'products';
+
         lucide.createIcons();
-        console.log("Threads Gallery Storefront Initialized Successfully");
+
+        function formatPrice(value) {
+            const numericValue = Number(value || 0);
+            return numericValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function getPublicImageUrl(imagePath) {
+            if (!imagePath) return '';
+            const { data } = window.supabaseClient.storage.from('product-images').getPublicUrl(imagePath);
+            return data.publicUrl;
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('product-grid');
+
+            if (!products.length) {
+                grid.innerHTML = `
+                    <div class="rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center text-slate-500 sm:col-span-2 xl:col-span-3">
+                        No products available yet.
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = products.map((product) => {
+                const imageUrl = getPublicImageUrl(product.image_path);
+                const tags = Array.isArray(product.tags) ? product.tags : [];
+                const actualPrice = formatPrice(product.actual_price ?? product.price);
+                const finalPrice = formatPrice(product.price);
+
+                return `
+                    <article class="group overflow-hidden rounded-[1.8rem] border border-teal-100/70 bg-white shadow-[0_20px_70px_rgba(13,148,136,0.06)] transition hover:-translate-y-1">
+                        <div class="aspect-[4/5] overflow-hidden bg-slate-100">
+                            ${imageUrl ? `<img src="${imageUrl}" alt="${product.title}" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500">` : `<div class="flex h-full w-full items-center justify-center text-slate-400"><i data-lucide="image" class="w-10 h-10"></i></div>`}
+                        </div>
+                        <div class="p-5">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <h3 class="text-lg font-bold text-teal-950">${product.title}</h3>
+                                    <p class="mt-2 text-sm text-slate-600 line-clamp-3">${product.description}</p>
+                                </div>
+                                <span class="rounded-full border border-teal-100 bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-teal-700">${product.status}</span>
+                            </div>
+
+                            <div class="mt-4 flex items-end gap-3">
+                                <span class="text-sm text-slate-400 line-through">${actualPrice} PKR</span>
+                                <span class="text-xl font-bold text-teal-800">${finalPrice} PKR</span>
+                            </div>
+
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                ${tags.length ? tags.map((tag) => `<span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">${tag}</span>`).join('') : ''}
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        async function loadCustomerProfile() {
+            if (!window.supabaseClient) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const { data: authData, error: authError } = await window.supabaseClient.auth.getUser();
+            if (authError || !authData?.user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const user = authData.user;
+            const { data: profile } = await window.supabaseClient
+                .from(profileTableName)
+                .select('full_name, role')
+                .eq('id', user.id)
+                .maybeSingle();
+
+            if (String(profile?.role || '').toLowerCase() === 'admin') {
+                window.location.href = 'admin.html';
+                return;
+            }
+
+            const displayName = profile?.full_name || user.user_metadata?.full_name || 'Customer';
+            document.getElementById('customer-greeting').textContent = `Hi ${displayName}`;
+            document.getElementById('hero-greeting').textContent = `Hi ${displayName}, discover your next favorite outfit.`;
+        }
+
+        async function loadProducts() {
+            const { data, error } = await window.supabaseClient
+                .from(productTableName)
+                .select('*')
+                .eq('status', 'new')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                document.getElementById('product-grid').innerHTML = `
+                    <div class="rounded-3xl border border-rose-200 bg-rose-50 p-6 text-rose-700 sm:col-span-2 xl:col-span-3">
+                        Could not load products: ${error.message}
+                    </div>
+                `;
+                return;
+            }
+
+            renderProducts(data || []);
+        }
+
+        (async function init() {
+            await loadCustomerProfile();
+            await loadProducts();
+            console.log("Threads Gallery Storefront Initialized Successfully");
+        })();
     </script>
 </body>
 </html>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threads Gallery | Manage Products</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase_configuration.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen bg-[linear-gradient(135deg,_#f8fafc_0%,_#eefaf8_55%,_#e7f6f4_100%)] text-slate-800">
+    <div class="min-h-screen flex flex-col">
+        <header class="sticky top-0 z-20 border-b border-teal-100/70 bg-white/80 backdrop-blur-xl">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+                <a href="admin.html" class="flex items-center gap-3 group">
+                    <img src="logo.png" alt="Threads Gallery Logo" class="h-12 w-12 object-cover rounded-full ring-2 ring-teal-100 group-hover:scale-105 transition-transform">
+                    <div>
+                        <div class="text-base font-bold tracking-tight text-teal-950">Threads Gallery</div>
+                        <div class="text-xs uppercase tracking-[0.24em] text-teal-700/80">Admin Portal</div>
+                    </div>
+                </a>
+
+                <nav class="hidden md:flex items-center gap-3 text-sm font-medium">
+                    <a href="admin.html" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Dashboard</a>
+                    <a href="orders.html" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Orders</a>
+                    <a href="index.html" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Logout</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="flex-1">
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
+                <div class="grid xl:grid-cols-[0.95fr_1.05fr] gap-6 lg:gap-8 items-start">
+                    <div class="space-y-6">
+                        <div class="rounded-[2rem] border border-teal-100/70 bg-white/85 backdrop-blur-xl shadow-[0_20px_70px_rgba(13,148,136,0.08)] p-6 sm:p-8">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 text-teal-800 text-xs font-semibold uppercase tracking-[0.2em] mb-4">
+                                <span class="w-2 h-2 rounded-full bg-teal-600"></span>
+                                Product workspace
+                            </div>
+
+                            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-teal-950">Manage Products</h1>
+                            <p id="admin-welcome" class="mt-3 text-slate-600 leading-relaxed">
+                                Add new products, update details, change status, and remove items from the storefront.
+                            </p>
+
+                            <div class="mt-6 grid grid-cols-2 gap-3">
+                                <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                                    <div class="text-xs uppercase tracking-[0.2em] text-slate-500">Total Products</div>
+                                    <div id="stat-total" class="mt-1 text-2xl font-bold text-slate-900">0</div>
+                                </div>
+                                <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4">
+                                    <div class="text-xs uppercase tracking-[0.2em] text-slate-500">New Items</div>
+                                    <div id="stat-new" class="mt-1 text-2xl font-bold text-slate-900">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rounded-[2rem] border border-teal-100/70 bg-white/85 backdrop-blur-xl shadow-[0_20px_70px_rgba(13,148,136,0.08)] p-6 sm:p-8">
+                            <div class="flex items-center justify-between gap-4 mb-5">
+                                <div>
+                                    <h2 id="form-title" class="text-2xl font-bold tracking-tight text-teal-950">Add Product</h2>
+                                    <p class="mt-1 text-sm text-slate-500">Fill in the product details and upload one image.</p>
+                                </div>
+                                <button id="reset-btn" type="button" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 font-semibold text-slate-700 hover:bg-slate-50 transition">
+                                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                                    Reset
+                                </button>
+                            </div>
+
+                            <div id="form-message" class="hidden mb-5 p-3 rounded-xl text-sm font-medium"></div>
+
+                            <form id="product-form" class="space-y-4">
+                                <input type="hidden" id="product-id" value="">
+                                <input type="hidden" id="existing-image-path" value="">
+
+                                <div>
+                                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Product Image</label>
+                                    <input id="product-image" type="file" accept="image/*" class="block w-full text-sm text-slate-600 file:mr-4 file:rounded-xl file:border-0 file:bg-teal-700 file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-white hover:file:bg-teal-800 cursor-pointer rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2.5">
+                                    <p class="mt-1 text-xs text-slate-500">PNG, JPG, JPEG, WEBP are supported.</p>
+                                </div>
+
+                                <div>
+                                    <label for="product-title" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Product Title</label>
+                                    <input id="product-title" type="text" required placeholder="Embroidered Lawn Suit" class="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 transition">
+                                </div>
+
+                                <div>
+                                    <label for="product-description" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Product Description</label>
+                                    <textarea id="product-description" rows="5" required placeholder="Write a clear product description..." class="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 transition"></textarea>
+                                </div>
+
+                                <div class="grid sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="product-actual-price" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Actual Price</label>
+                                        <input id="product-actual-price" type="number" min="0" step="0.01" required placeholder="0.00" class="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 transition">
+                                    </div>
+
+                                    <div>
+                                        <label for="product-price" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Final Price</label>
+                                        <input id="product-price" type="number" min="0" step="0.01" required placeholder="0.00" class="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 transition">
+                                    </div>
+                                </div>
+
+                                <div class="grid sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="product-status" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Product Status</label>
+                                        <select id="product-status" class="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 transition">
+                                            <option value="new">new</option>
+                                            <option value="sold out">sold out</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="product-tags" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">Tags / Feature Labels</label>
+                                    <input id="product-tags" type="text" placeholder="lawn, premium, summer" class="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600/20 focus:border-teal-600 transition">
+                                    <p class="mt-1 text-xs text-slate-500">Separate multiple tags with commas.</p>
+                                </div>
+
+                                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                                    <button id="submit-btn" type="submit" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-teal-700 px-5 py-3.5 font-semibold text-white shadow-lg shadow-teal-700/20 hover:bg-teal-800 transition">
+                                        <i data-lucide="plus" class="w-4 h-4"></i>
+                                        <span id="submit-label">Add Product</span>
+                                    </button>
+                                    <button id="cancel-edit-btn" type="button" class="hidden inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-5 py-3.5 font-semibold text-slate-700 hover:bg-slate-50 transition">
+                                        Cancel Edit
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="rounded-[2rem] border border-teal-100/70 bg-white/85 backdrop-blur-xl shadow-[0_20px_70px_rgba(13,148,136,0.08)] p-6 sm:p-8">
+                        <div class="flex items-center justify-between gap-4 mb-5">
+                            <div>
+                                <h2 class="text-2xl font-bold tracking-tight text-teal-950">Products</h2>
+                                <p class="mt-1 text-sm text-slate-500">Edit status, update details, or remove products.</p>
+                            </div>
+                            <button id="refresh-btn" type="button" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 font-semibold text-slate-700 hover:bg-slate-50 transition">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                Refresh
+                            </button>
+                        </div>
+
+                        <div id="product-list" class="space-y-4">
+                            <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center text-slate-500">
+                                Loading products...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const profileTableName = 'profiles';
+        const productTableName = 'products';
+        const bucketName = 'product-images';
+        let currentAdmin = null;
+        let productsCache = [];
+
+        lucide.createIcons();
+
+        function showMessage(text, isError = false) {
+            const msgBox = document.getElementById('form-message');
+            msgBox.textContent = text;
+            msgBox.className = `mb-5 p-3 rounded-xl text-sm font-medium ${isError ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-teal-50 text-teal-700 border border-teal-200'}`;
+            msgBox.classList.remove('hidden');
+        }
+
+        function hideMessage() {
+            document.getElementById('form-message').classList.add('hidden');
+        }
+
+        function setBusy(isBusy) {
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = isBusy;
+            submitBtn.classList.toggle('opacity-70', isBusy);
+            submitBtn.classList.toggle('cursor-not-allowed', isBusy);
+            document.getElementById('submit-label').textContent = isBusy ? 'Saving...' : 'Add Product';
+        }
+
+        function resetForm() {
+            document.getElementById('product-form').reset();
+            document.getElementById('product-id').value = '';
+            document.getElementById('existing-image-path').value = '';
+            document.getElementById('form-title').textContent = 'Add Product';
+            document.getElementById('submit-label').textContent = 'Add Product';
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+            document.getElementById('product-actual-price').value = '';
+            document.getElementById('product-status').value = 'new';
+            document.getElementById('product-image').required = true;
+            hideMessage();
+        }
+
+        function parseTags(inputValue) {
+            return inputValue
+                .split(',')
+                .map((tag) => tag.trim())
+                .filter(Boolean);
+        }
+
+        function formatPrice(value) {
+            const numericValue = Number(value || 0);
+            return numericValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function getPublicImageUrl(imagePath) {
+            if (!imagePath) return '';
+            const { data } = window.supabaseClient.storage.from(bucketName).getPublicUrl(imagePath);
+            return data.publicUrl;
+        }
+
+        function renderProducts() {
+            const list = document.getElementById('product-list');
+            const total = productsCache.length;
+            const newCount = productsCache.filter((product) => product.status === 'new').length;
+
+            document.getElementById('stat-total').textContent = String(total);
+            document.getElementById('stat-new').textContent = String(newCount);
+
+            if (!productsCache.length) {
+                list.innerHTML = `
+                    <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center text-slate-500">
+                        No products yet. Add the first item using the form on the left.
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = productsCache.map((product) => {
+                const tags = Array.isArray(product.tags) ? product.tags : [];
+                const imageUrl = getPublicImageUrl(product.image_path);
+                const statusBadge = product.status === 'sold out'
+                    ? 'bg-rose-50 text-rose-700 border-rose-200'
+                    : 'bg-teal-50 text-teal-700 border-teal-200';
+                const actualPrice = formatPrice(product.actual_price ?? product.price);
+                const finalPrice = formatPrice(product.price);
+
+                return `
+                    <article class="rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="w-full sm:w-32 h-40 sm:h-32 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0">
+                                ${imageUrl ? `<img src="${imageUrl}" alt="${product.title}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-slate-400"><i data-lucide="image" class="w-6 h-6"></i></div>`}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                    <div class="min-w-0">
+                                        <h3 class="text-lg font-bold text-teal-950 truncate">${product.title}</h3>
+                                        <p class="mt-1 text-sm text-slate-600 line-clamp-3">${product.description}</p>
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${statusBadge}">${product.status}</span>
+                                        <span class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">${finalPrice} PKR</span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 flex items-center gap-3 text-sm">
+                                    <span class="text-slate-400 line-through">${actualPrice} PKR</span>
+                                    <span class="rounded-full bg-teal-700 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white">Discounted</span>
+                                </div>
+
+                                <div class="mt-4 flex flex-wrap gap-2">
+                                    ${tags.length ? tags.map((tag) => `<span class="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700">${tag}</span>`).join('') : '<span class="text-sm text-slate-400">No tags</span>'}
+                                </div>
+
+                                <div class="mt-5 flex flex-wrap gap-3">
+                                    <button class="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-800 transition" data-action="edit" data-id="${product.id}">
+                                        <i data-lucide="square-pen" class="w-4 h-4"></i>
+                                        Edit
+                                    </button>
+                                    <button class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition" data-action="status" data-id="${product.id}">
+                                        <i data-lucide="repeat-2" class="w-4 h-4"></i>
+                                        Toggle Status
+                                    </button>
+                                    <button class="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-50 transition" data-action="delete" data-id="${product.id}">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        async function loadAdminProfile() {
+            if (!window.supabaseClient) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const { data: authData, error: authError } = await window.supabaseClient.auth.getUser();
+
+            if (authError || !authData?.user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const user = authData.user;
+            const { data: profile, error: profileError } = await window.supabaseClient
+                .from(profileTableName)
+                .select('full_name, role')
+                .eq('id', user.id)
+                .maybeSingle();
+
+            if (profileError) {
+                console.warn('Admin profile load failed:', profileError.message);
+                window.location.href = 'index.html';
+                return;
+            }
+
+            if (String(profile?.role || '').toLowerCase() !== 'admin') {
+                window.location.href = 'home.html';
+                return;
+            }
+
+            currentAdmin = { id: user.id, name: profile?.full_name || user.user_metadata?.full_name || 'Admin' };
+            document.getElementById('admin-welcome').textContent = `Hi ${currentAdmin.name}, add and manage your product catalog from here.`;
+        }
+
+        async function loadProducts() {
+            const { data, error } = await window.supabaseClient
+                .from(productTableName)
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                document.getElementById('product-list').innerHTML = `
+                    <div class="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-rose-700">
+                        Failed to load products: ${error.message}
+                    </div>
+                `;
+                return;
+            }
+
+            productsCache = data || [];
+            renderProducts();
+        }
+
+        async function uploadImage(file) {
+            const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const filePath = `${currentAdmin.id}/${Date.now()}-${safeName}`;
+            const { error } = await window.supabaseClient.storage
+                .from(bucketName)
+                .upload(filePath, file, { upsert: false, contentType: file.type });
+
+            if (error) {
+                throw error;
+            }
+
+            return filePath;
+        }
+
+        async function deleteImage(imagePath) {
+            if (!imagePath) return;
+            const { error } = await window.supabaseClient.storage.from(bucketName).remove([imagePath]);
+            if (error) {
+                console.warn('Could not remove old image:', error.message);
+            }
+        }
+
+        async function saveProduct(event) {
+            event.preventDefault();
+            hideMessage();
+            setBusy(true);
+
+            try {
+                const productId = document.getElementById('product-id').value;
+                const existingImagePath = document.getElementById('existing-image-path').value;
+                const title = document.getElementById('product-title').value.trim();
+                const description = document.getElementById('product-description').value.trim();
+                const actualPrice = Number(document.getElementById('product-actual-price').value);
+                const price = Number(document.getElementById('product-price').value);
+                const status = document.getElementById('product-status').value;
+                const tags = parseTags(document.getElementById('product-tags').value);
+                const imageFile = document.getElementById('product-image').files[0];
+
+                if (actualPrice < price) {
+                    throw new Error('Actual price must be greater than or equal to the final price.');
+                }
+
+                let imagePath = existingImagePath;
+
+                if (!productId && !imageFile) {
+                    throw new Error('Product image is required for a new product.');
+                }
+
+                if (imageFile) {
+                    imagePath = await uploadImage(imageFile);
+                }
+
+                if (productId) {
+                    const updatePayload = {
+                        title,
+                        description,
+                        actual_price: actualPrice,
+                        price,
+                        status,
+                        tags,
+                        image_path: imagePath
+                    };
+
+                    const { error } = await window.supabaseClient
+                        .from(productTableName)
+                        .update(updatePayload)
+                        .eq('id', productId);
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    if (imageFile && existingImagePath && existingImagePath !== imagePath) {
+                        await deleteImage(existingImagePath);
+                    }
+
+                    showMessage('Product updated successfully.');
+                } else {
+                    const { error } = await window.supabaseClient
+                        .from(productTableName)
+                        .insert({
+                            title,
+                            description,
+                            actual_price: actualPrice,
+                            price,
+                            status,
+                            tags,
+                            image_path: imagePath,
+                            created_by: currentAdmin.id
+                        });
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    showMessage('Product added successfully.');
+                }
+
+                resetForm();
+                await loadProducts();
+            } catch (error) {
+                showMessage(error.message || 'Could not save product.', true);
+            } finally {
+                setBusy(false);
+            }
+        }
+
+        async function startEdit(productId) {
+            const product = productsCache.find((item) => item.id === productId);
+            if (!product) return;
+
+            document.getElementById('product-id').value = product.id;
+            document.getElementById('existing-image-path').value = product.image_path || '';
+            document.getElementById('product-title').value = product.title || '';
+            document.getElementById('product-description').value = product.description || '';
+            document.getElementById('product-actual-price').value = product.actual_price ?? product.price ?? '';
+            document.getElementById('product-price').value = product.price ?? '';
+            document.getElementById('product-status').value = product.status || 'new';
+            document.getElementById('product-tags').value = Array.isArray(product.tags) ? product.tags.join(', ') : '';
+            document.getElementById('product-image').required = false;
+
+            document.getElementById('form-title').textContent = 'Edit Product';
+            document.getElementById('submit-label').textContent = 'Update Product';
+            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function removeProduct(productId) {
+            const product = productsCache.find((item) => item.id === productId);
+            if (!product) return;
+
+            const confirmed = window.confirm(`Delete ${product.title}? This will remove the product and its image.`);
+            if (!confirmed) return;
+
+            try {
+                const { error } = await window.supabaseClient
+                    .from(productTableName)
+                    .delete()
+                    .eq('id', productId);
+
+                if (error) {
+                    throw error;
+                }
+
+                await deleteImage(product.image_path);
+                showMessage('Product deleted successfully.');
+                await loadProducts();
+            } catch (error) {
+                showMessage(error.message || 'Could not delete product.', true);
+            }
+        }
+
+        async function toggleStatus(productId) {
+            const product = productsCache.find((item) => item.id === productId);
+            if (!product) return;
+
+            const nextStatus = product.status === 'sold out' ? 'new' : 'sold out';
+
+            try {
+                const { error } = await window.supabaseClient
+                    .from(productTableName)
+                    .update({ status: nextStatus })
+                    .eq('id', productId);
+
+                if (error) {
+                    throw error;
+                }
+
+                showMessage(`Status updated to ${nextStatus}.`);
+                await loadProducts();
+            } catch (error) {
+                showMessage(error.message || 'Could not update product status.', true);
+            }
+        }
+
+        document.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-action]');
+            if (!button) return;
+
+            const action = button.dataset.action;
+            const productId = button.dataset.id;
+
+            if (action === 'edit') startEdit(productId);
+            if (action === 'delete') removeProduct(productId);
+            if (action === 'status') toggleStatus(productId);
+        });
+
+        document.getElementById('product-form').addEventListener('submit', saveProduct);
+        document.getElementById('reset-btn').addEventListener('click', resetForm);
+        document.getElementById('cancel-edit-btn').addEventListener('click', resetForm);
+        document.getElementById('refresh-btn').addEventListener('click', loadProducts);
+
+        (async function init() {
+            await loadAdminProfile();
+            await loadProducts();
+        })();
+
+        console.log('Threads Gallery Manage Products Initialized');
+    </script>
+</body>
+</html>
