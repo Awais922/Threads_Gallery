@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase_configuration.js"></script>
+    <script src="auth_guard.js"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -32,7 +33,7 @@
                 <nav class="hidden md:flex items-center gap-3 text-sm font-medium">
                     <a href="manage_products.html" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Products</a>
                     <a href="orders.html" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Orders</a>
-                    <a href="index.html" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Logout</a>
+                    <a href="#" onclick="ThreadsGalleryAuth.safeSignOut('index.html'); return false;" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Logout</a>
                 </nav>
             </div>
         </header>
@@ -100,7 +101,7 @@
                             </div>
                         </div>
 
-                        <a href="index.html" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-5 py-3.5 font-semibold text-slate-700 hover:bg-slate-50 transition">
+                        <a href="#" onclick="ThreadsGalleryAuth.safeSignOut('index.html'); return false;" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 px-5 py-3.5 font-semibold text-slate-700 hover:bg-slate-50 transition">
                             <i data-lucide="log-out" class="w-4 h-4"></i>
                             Back to Login
                         </a>
@@ -111,50 +112,26 @@
     </div>
 
     <script>
-        const profileTableName = 'profiles';
-
         lucide.createIcons();
 
-        async function loadAdminProfile() {
-            if (!window.supabaseClient) {
-                window.location.href = 'index.html';
+        (async function init() {
+            const context = await ThreadsGalleryAuth.protectPage({
+                requiredRole: 'admin',
+                customerUrl: 'home.html',
+                adminUrl: 'admin.html',
+                redirectTo: 'index.html',
+                onAuthenticated: async ({ fullName }) => {
+                    document.getElementById('admin-greeting').textContent = `Hi ${fullName}`;
+                    document.getElementById('admin-subtitle').textContent = 'Manage products, review orders, and keep the storefront up to date from one place.';
+                }
+            });
+
+            if (!context) {
                 return;
             }
 
-            const { data: authData, error: authError } = await window.supabaseClient.auth.getUser();
-
-            if (authError || !authData?.user) {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            const user = authData.user;
-
-            const { data: profile, error: profileError } = await window.supabaseClient
-                .from(profileTableName)
-                .select('full_name, role')
-                .eq('id', user.id)
-                .maybeSingle();
-
-            if (profileError) {
-                console.warn('Admin profile load failed:', profileError.message);
-            }
-
-            const resolvedRole = profile?.role ? String(profile.role).toLowerCase() : null;
-
-            if (resolvedRole !== 'admin') {
-                window.location.href = 'home.html';
-                return;
-            }
-
-            const displayName = profile?.full_name || user.user_metadata?.full_name || 'Admin';
-            document.getElementById('admin-greeting').textContent = `Hi ${displayName}`;
-            document.getElementById('admin-subtitle').textContent = 'Manage products, review orders, and keep the storefront up to date from one place.';
-        }
-
-        loadAdminProfile();
-
-        console.log("Threads Gallery Admin Portal Initialized");
+            console.log("Threads Gallery Admin Portal Initialized");
+        })();
     </script>
 </body>
 </html>

@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase_configuration.js"></script>
+    <script src="auth_guard.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -29,7 +30,7 @@
                 <nav class="hidden md:flex items-center gap-3 text-sm font-medium">
                     <a href="admin.html" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Dashboard</a>
                     <a href="orders.html" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Orders</a>
-                    <a href="index.html" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Logout</a>
+                    <a href="#" onclick="ThreadsGalleryAuth.safeSignOut('index.html'); return false;" class="px-4 py-2 rounded-xl text-slate-600 hover:text-teal-800 hover:bg-teal-50 transition">Logout</a>
                 </nav>
             </div>
         </header>
@@ -160,7 +161,6 @@
     </div>
 
     <script>
-        const profileTableName = 'profiles';
         const productTableName = 'products';
         const bucketName = 'product-images';
         let currentAdmin = null;
@@ -292,41 +292,6 @@
             }).join('');
 
             lucide.createIcons();
-        }
-
-        async function loadAdminProfile() {
-            if (!window.supabaseClient) {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            const { data: authData, error: authError } = await window.supabaseClient.auth.getUser();
-
-            if (authError || !authData?.user) {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            const user = authData.user;
-            const { data: profile, error: profileError } = await window.supabaseClient
-                .from(profileTableName)
-                .select('full_name, role')
-                .eq('id', user.id)
-                .maybeSingle();
-
-            if (profileError) {
-                console.warn('Admin profile load failed:', profileError.message);
-                window.location.href = 'index.html';
-                return;
-            }
-
-            if (String(profile?.role || '').toLowerCase() !== 'admin') {
-                window.location.href = 'home.html';
-                return;
-            }
-
-            currentAdmin = { id: user.id, name: profile?.full_name || user.user_metadata?.full_name || 'Admin' };
-            document.getElementById('admin-welcome').textContent = `Hi ${currentAdmin.name}, add and manage your product catalog from here.`;
         }
 
         async function loadProducts() {
@@ -541,7 +506,21 @@
         document.getElementById('refresh-btn').addEventListener('click', loadProducts);
 
         (async function init() {
-            await loadAdminProfile();
+            const context = await ThreadsGalleryAuth.protectPage({
+                requiredRole: 'admin',
+                customerUrl: 'home.html',
+                adminUrl: 'admin.html',
+                redirectTo: 'index.html',
+                onAuthenticated: async ({ user, fullName }) => {
+                    currentAdmin = { id: user.id, name: fullName };
+                    document.getElementById('admin-welcome').textContent = `Hi ${currentAdmin.name}, add and manage your product catalog from here.`;
+                }
+            });
+
+            if (!context) {
+                return;
+            }
+
             await loadProducts();
         })();
 

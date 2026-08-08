@@ -7,8 +7,10 @@
     <link rel="icon" type="image/png" href="head.png">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase_configuration.js"></script>
+    <script src="auth_guard.js"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -27,12 +29,12 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-teal-700 selection:text-white">
 
     <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-teal-100/60 transition-all">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <a href="home.html" class="flex items-center gap-3 group">
-                <div class="w-14 h-14 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-20 py-3 flex items-center justify-between gap-3">
+            <a href="home.html" class="flex items-center gap-3 group shrink-0">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
                     <img src="logo.png" alt="Threads Gallery Logo" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/f0fdfa/0f766e?text=TG';">
                 </div>
-                <span class="text-xl font-bold tracking-tight text-teal-950">Threads Gallery</span>
+                <span class="text-lg sm:text-xl font-bold tracking-tight text-teal-950">Threads Gallery</span>
             </a>
 
             <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
@@ -47,13 +49,84 @@
                 <p class="text-xs text-slate-500">Welcome back to Threads Gallery</p>
             </div>
 
-            <div class="flex items-center gap-4">
-                <a href="index.html" class="inline-flex items-center gap-2 px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium rounded-xl transition">
+            <div class="hidden md:flex items-center gap-2 sm:gap-4 shrink-0">
+                <a href="profile.html" class="hidden sm:inline-flex items-center gap-2 px-4 py-2 border border-teal-100 bg-teal-50 hover:bg-teal-100 text-teal-800 text-sm font-semibold rounded-xl transition">
+                    <i data-lucide="user-round" class="w-4 h-4"></i> Profile
+                </a>
+                <a href="#" onclick="ThreadsGalleryAuth.safeSignOut('index.html'); return false;" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-medium rounded-xl transition whitespace-nowrap">
                     <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
                 </a>
             </div>
+
+            <button id="mobile-menu-button" type="button" class="md:hidden inline-flex items-center justify-center rounded-xl border border-teal-100 bg-white px-3 py-2 text-teal-800 shadow-sm transition hover:bg-teal-50" aria-expanded="false" aria-controls="mobile-menu">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+                <span class="sr-only">Open menu</span>
+            </button>
+        </div>
+
+        <div id="mobile-menu" class="md:hidden hidden border-t border-teal-100/70 bg-white/95 backdrop-blur-xl">
+            <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6">
+                <div class="mb-4 rounded-2xl bg-teal-50 px-4 py-3">
+                    <p id="mobile-customer-greeting" class="text-sm font-semibold text-teal-700">Hi Customer</p>
+                    <p class="text-xs text-slate-500">Welcome back to Threads Gallery</p>
+                </div>
+
+                <div class="grid gap-3">
+                    <a href="home.html" class="flex items-center justify-between rounded-2xl border border-teal-100 bg-white px-4 py-3 text-sm font-semibold text-teal-900 shadow-sm">
+                        <span>Home</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 text-teal-500"></i>
+                    </a>
+                    <a href="#collections" class="flex items-center justify-between rounded-2xl border border-teal-100 bg-white px-4 py-3 text-sm font-semibold text-teal-900 shadow-sm">
+                        <span>Collections</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 text-teal-500"></i>
+                    </a>
+                    <a href="#collections" class="flex items-center justify-between rounded-2xl border border-teal-100 bg-white px-4 py-3 text-sm font-semibold text-teal-900 shadow-sm">
+                        <span>New Arrivals</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 text-teal-500"></i>
+                    </a>
+                    <a href="#collections" class="flex items-center justify-between rounded-2xl border border-teal-100 bg-white px-4 py-3 text-sm font-semibold text-teal-900 shadow-sm">
+                        <span>Featured</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 text-teal-500"></i>
+                    </a>
+                    <a href="profile.html" class="flex items-center justify-between rounded-2xl border border-teal-100 bg-white px-4 py-3 text-sm font-semibold text-teal-900 shadow-sm">
+                        <span>Profile</span>
+                        <i data-lucide="user-round" class="w-4 h-4 text-teal-500"></i>
+                    </a>
+                    <a href="#" onclick="ThreadsGalleryAuth.safeSignOut('index.html'); return false;" class="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm">
+                        <span>Sign Out</span>
+                        <i data-lucide="log-out" class="w-4 h-4 text-slate-500"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </header>
+
+    <section class="w-full bg-slate-100/70 border-b border-teal-100/70">
+        <div class="relative mx-auto max-w-7xl overflow-hidden px-0 sm:px-4 lg:px-8">
+            <div class="slider-shell relative overflow-hidden sm:rounded-[2rem] sm:my-4 shadow-[0_24px_70px_rgba(15,118,110,0.12)] bg-slate-200">
+                <div id="hero-slider" class="flex w-full transition-transform duration-700 ease-in-out will-change-transform">
+                    <div class="min-w-full">
+                        <img src="mh1.png" alt="Threads Gallery hero collection 1" class="h-[260px] w-full object-contain object-center bg-slate-100 p-2 sm:h-[360px] lg:h-[560px] lg:p-4">
+                    </div>
+                    <div class="min-w-full">
+                        <img src="mh2.png" alt="Threads Gallery hero collection 2" class="h-[260px] w-full object-contain object-center bg-slate-100 p-2 sm:h-[360px] lg:h-[560px] lg:p-4">
+                    </div>
+                    <div class="min-w-full">
+                        <img src="mh3.png" alt="Threads Gallery hero collection 3" class="h-[260px] w-full object-contain object-center bg-slate-100 p-2 sm:h-[360px] lg:h-[560px] lg:p-4">
+                    </div>
+                    <div class="min-w-full" aria-hidden="true">
+                        <img src="mh1.png" alt="Threads Gallery hero collection 1 duplicate" class="h-[260px] w-full object-contain object-center bg-slate-100 p-2 sm:h-[360px] lg:h-[560px] lg:p-4">
+                    </div>
+                </div>
+
+                <div class="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center gap-2 pb-4 sm:pb-5">
+                    <span class="hero-dot h-2.5 w-2.5 rounded-full bg-white/90 shadow-sm"></span>
+                    <span class="hero-dot h-2.5 w-2.5 rounded-full bg-white/45"></span>
+                    <span class="hero-dot h-2.5 w-2.5 rounded-full bg-white/45"></span>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <section class="relative overflow-hidden bg-gradient-to-br from-teal-50 via-slate-50 to-teal-100/40 py-20 lg:py-28">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -91,10 +164,81 @@
     </section>
 
     <script>
-        const profileTableName = 'profiles';
         const productTableName = 'products';
+        const sliderImages = ['mh1.png', 'mh2.png', 'mh3.png', 'mh1.png'];
+        let currentSlideIndex = 0;
+        let sliderTimer = null;
+        let isSliderResetting = false;
+        let mobileMenuOpen = false;
 
         lucide.createIcons();
+
+        function updateHeroSlider() {
+            const slider = document.getElementById('hero-slider');
+            const dots = document.querySelectorAll('.hero-dot');
+
+            if (!slider) {
+                return;
+            }
+
+            slider.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+
+            dots.forEach((dot, index) => {
+                const activeIndex = currentSlideIndex === 3 ? 0 : currentSlideIndex;
+                dot.classList.toggle('bg-white/90', index === activeIndex);
+                dot.classList.toggle('bg-white/45', index !== activeIndex);
+            });
+        }
+
+        function startHeroSlider() {
+            updateHeroSlider();
+            if (sliderTimer) {
+                clearInterval(sliderTimer);
+            }
+
+            sliderTimer = setInterval(() => {
+                currentSlideIndex = (currentSlideIndex + 1) % sliderImages.length;
+                updateHeroSlider();
+            }, 3500);
+        }
+
+        function toggleMobileMenu(forceOpen = null) {
+            const menu = document.getElementById('mobile-menu');
+            const button = document.getElementById('mobile-menu-button');
+            const nextState = forceOpen === null ? !mobileMenuOpen : Boolean(forceOpen);
+
+            mobileMenuOpen = nextState;
+            menu.classList.toggle('hidden', !mobileMenuOpen);
+            button?.setAttribute('aria-expanded', String(mobileMenuOpen));
+
+            const icon = button?.querySelector('[data-lucide]');
+            if (icon) {
+                icon.setAttribute('data-lucide', mobileMenuOpen ? 'x' : 'menu');
+                lucide.createIcons();
+            }
+        }
+
+        function handleSliderLoopReset() {
+            const slider = document.getElementById('hero-slider');
+            if (!slider || isSliderResetting) {
+                return;
+            }
+
+            if (currentSlideIndex === 3) {
+                isSliderResetting = true;
+                slider.style.transition = 'none';
+                currentSlideIndex = 0;
+                slider.style.transform = 'translateX(0%)';
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        slider.style.transition = '';
+                        isSliderResetting = false;
+                    });
+                });
+            }
+        }
+
+        window.addEventListener('resize', updateHeroSlider);
 
         function formatPrice(value) {
             const numericValue = Number(value || 0);
@@ -155,35 +299,6 @@
             lucide.createIcons();
         }
 
-        async function loadCustomerProfile() {
-            if (!window.supabaseClient) {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            const { data: authData, error: authError } = await window.supabaseClient.auth.getUser();
-            if (authError || !authData?.user) {
-                window.location.href = 'index.html';
-                return;
-            }
-
-            const user = authData.user;
-            const { data: profile } = await window.supabaseClient
-                .from(profileTableName)
-                .select('full_name, role')
-                .eq('id', user.id)
-                .maybeSingle();
-
-            if (String(profile?.role || '').toLowerCase() === 'admin') {
-                window.location.href = 'admin.html';
-                return;
-            }
-
-            const displayName = profile?.full_name || user.user_metadata?.full_name || 'Customer';
-            document.getElementById('customer-greeting').textContent = `Hi ${displayName}`;
-            document.getElementById('hero-greeting').textContent = `Hi ${displayName}, discover your next favorite outfit.`;
-        }
-
         async function loadProducts() {
             const { data, error } = await window.supabaseClient
                 .from(productTableName)
@@ -204,77 +319,120 @@
         }
 
         (async function init() {
-            await loadCustomerProfile();
+            const context = await ThreadsGalleryAuth.protectPage({
+                requiredRole: 'customer',
+                customerUrl: 'home.html',
+                adminUrl: 'admin.html',
+                redirectTo: 'index.html',
+                onAuthenticated: async ({ fullName }) => {
+                    document.getElementById('customer-greeting').textContent = `Hi ${fullName}`;
+                    document.getElementById('hero-greeting').textContent = `Hi ${fullName}, discover your next favorite outfit.`;
+                }
+            });
+
+            if (!context) {
+                return;
+            }
+
+            document.getElementById('mobile-menu-button')?.addEventListener('click', () => {
+                toggleMobileMenu();
+            });
+
+            document.getElementById('mobile-customer-greeting').textContent = document.getElementById('customer-greeting').textContent;
+
+            document.getElementById('hero-slider').addEventListener('transitionend', handleSliderLoopReset);
+            startHeroSlider();
             await loadProducts();
             console.log("Threads Gallery Storefront Initialized Successfully");
         })();
     </script>
 
-    <footer class="mt-6 border-t border-teal-100/70 bg-white/80 backdrop-blur-md">
+    <footer class="mt-6 border-t border-teal-900/40 bg-teal-800 text-white shadow-[0_-20px_60px_rgba(15,118,110,0.18)]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-            <div class="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] items-start">
+            <div class="grid gap-8 lg:grid-cols-[1.15fr_0.85fr_0.9fr] items-start">
                 <div>
                     <div class="flex items-center gap-3 mb-4">
                         <img src="logo.png" alt="Threads Gallery Logo" class="h-12 w-12 rounded-full object-cover ring-2 ring-teal-100">
                         <div>
-                            <div class="text-lg font-bold tracking-tight text-teal-950">Threads Gallery</div>
-                            <div class="text-xs uppercase tracking-[0.24em] text-teal-700/80">Stay Connected</div>
+                            <div class="text-lg font-bold tracking-tight text-white">Threads Gallery</div>
+                            <div class="text-xs uppercase tracking-[0.24em] text-teal-100/80">Stay Connected</div>
                         </div>
                     </div>
-                    <p class="max-w-xl text-sm leading-6 text-slate-600">
+                    <p class="max-w-xl text-sm leading-6 text-teal-50/85">
                         Discover premium unstitched collections, seasonal drops, and exclusive offers.
                         Reach out through your preferred social channel for quick support and updates.
                     </p>
+                    <div class="mt-6 flex flex-wrap gap-3 text-sm text-teal-50/80">
+                        <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5"><i class="fa-solid fa-phone text-xs"></i> +92 327 4747547</span>
+                        <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5"><i class="fa-solid fa-location-dot text-xs"></i> Lahore, Punjab, Pakistan</span>
+                    </div>
                 </div>
 
-                <div class="grid sm:grid-cols-3 gap-4">
-                    <a href="https://wa.me/923274747547" target="_blank" rel="noopener noreferrer" class="group rounded-2xl border border-teal-100 bg-teal-50/70 px-4 py-4 transition hover:-translate-y-0.5 hover:bg-teal-100/70">
-                        <div class="flex items-center gap-3">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white text-emerald-600 shadow-sm">
-                                <i data-lucide="message-circle-more" class="w-5 h-5"></i>
-                            </span>
-                            <div>
-                                <div class="font-semibold text-teal-950">WhatsApp</div>
-                                <div class="text-xs text-slate-500">+92 327 4747547</div>
-                            </div>
-                        </div>
-                    </a>
+                <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-[0.24em] text-teal-100/80 mb-4">Quick Links</h3>
+                    <div class="grid sm:grid-cols-2 gap-3">
+                        <a href="#collections" class="rounded-2xl border border-white/10 bg-white/10 px-4 py-4 transition hover:-translate-y-0.5 hover:bg-white/15 backdrop-blur-sm">
+                            <div class="font-semibold text-white">New Arrivals</div>
+                            <div class="mt-1 text-xs text-teal-50/75">Shop the latest drops</div>
+                        </a>
+                        <a href="#" onclick="ThreadsGalleryAuth.safeSignOut('index.html'); return false;" class="rounded-2xl border border-white/10 bg-white/10 px-4 py-4 transition hover:-translate-y-0.5 hover:bg-white/15 backdrop-blur-sm">
+                            <div class="font-semibold text-white">Sign Out</div>
+                            <div class="mt-1 text-xs text-teal-50/75">Return to login</div>
+                        </a>
+                    </div>
+                </div>
 
-                    <a href="https://www.facebook.com/profile.php?id=61591760469686&mibextid=rS40aB7S9Ucbxw6v" target="_blank" rel="noopener noreferrer" class="group rounded-2xl border border-teal-100 bg-white px-4 py-4 transition hover:-translate-y-0.5 hover:bg-slate-50">
-                        <div class="flex items-center gap-3">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#1877F2]/10 text-[#1877F2] shadow-sm">
-                                <i data-lucide="facebook" class="w-5 h-5"></i>
-                            </span>
-                            <div>
-                                <div class="font-semibold text-teal-950">Facebook</div>
-                                <div class="text-xs text-slate-500">Threads Gallery</div>
+                <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-[0.24em] text-teal-100/80 mb-4">Socials</h3>
+                    <div class="grid gap-3">
+                        <a href="https://wa.me/923274747547" target="_blank" rel="noopener noreferrer" class="group rounded-2xl border border-white/10 bg-white/10 px-4 py-4 transition hover:-translate-y-0.5 hover:bg-white/15 backdrop-blur-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-sm">
+                                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                                </span>
+                                <div>
+                                    <div class="font-semibold text-white">WhatsApp</div>
+                                    <div class="text-xs text-teal-50/75">Quick chat and support</div>
+                                </div>
                             </div>
-                        </div>
-                    </a>
+                        </a>
 
-                    <a href="https://www.instagram.com/threadsgallerybywa" target="_blank" rel="noopener noreferrer" class="group rounded-2xl border border-teal-100 bg-white px-4 py-4 transition hover:-translate-y-0.5 hover:bg-slate-50">
-                        <div class="flex items-center gap-3">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white shadow-sm">
-                                <i data-lucide="instagram" class="w-5 h-5"></i>
-                            </span>
-                            <div>
-                                <div class="font-semibold text-teal-950">Instagram</div>
-                                <div class="text-xs text-slate-500">@threadsgallerybywa</div>
+                        <a href="https://www.facebook.com/profile.php?id=61591760469686&mibextid=rS40aB7S9Ucbxw6v" target="_blank" rel="noopener noreferrer" class="group rounded-2xl border border-white/10 bg-white/10 px-4 py-4 transition hover:-translate-y-0.5 hover:bg-white/15 backdrop-blur-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#1877F2] text-white shadow-sm">
+                                    <i class="fa-brands fa-facebook-f text-base"></i>
+                                </span>
+                                <div>
+                                    <div class="font-semibold text-white">Facebook</div>
+                                    <div class="text-xs text-teal-50/75">Threads Gallery</div>
+                                </div>
                             </div>
-                        </div>
-                    </a>
+                        </a>
+
+                        <a href="https://www.instagram.com/threadsgallerybywa" target="_blank" rel="noopener noreferrer" class="group rounded-2xl border border-white/10 bg-white/10 px-4 py-4 transition hover:-translate-y-0.5 hover:bg-white/15 backdrop-blur-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white shadow-sm">
+                                    <i class="fa-brands fa-instagram text-lg"></i>
+                                </span>
+                                <div>
+                                    <div class="font-semibold text-white">Instagram</div>
+                                    <div class="text-xs text-teal-50/75">@threadsgallerybywa</div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <div class="mt-8 flex flex-col gap-3 border-t border-teal-100/70 pt-6 sm:flex-row sm:items-center sm:justify-between">
-                <p class="text-sm text-slate-500">© 2026 Threads Gallery. All rights reserved.</p>
-                <p class="text-sm text-slate-500">Elegant unstitched fashion for everyday and special occasions.</p>
+            <div class="mt-8 flex flex-col gap-3 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-sm text-teal-50/75">© 2026 Threads Gallery. All rights reserved.</p>
+                <p class="text-sm text-teal-50/75">Elegant unstitched fashion for everyday and special occasions.</p>
             </div>
         </div>
     </footer>
 
     <a href="https://wa.me/923274747547" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp" class="fixed bottom-5 right-5 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-2xl shadow-emerald-500/30 transition hover:scale-105 hover:bg-emerald-600">
-        <i data-lucide="message-circle-more" class="w-6 h-6"></i>
+        <img src="https://cdn.simpleicons.org/whatsapp/FFFFFF" alt="WhatsApp" class="w-7 h-7">
     </a>
 </body>
 </html>

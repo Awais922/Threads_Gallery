@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase_configuration.js"></script>
+    <script src="auth_guard.js"></script>
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -123,6 +124,10 @@
         const profileTableName = 'profiles';
 
         lucide.createIcons();
+
+        (async function init() {
+            await ThreadsGalleryAuth.redirectAuthenticatedUser({ customerUrl: 'home.html', adminUrl: 'admin.html' });
+        })();
 
         function showMessage(text, isError = false) {
             const msgBox = document.getElementById('form-message');

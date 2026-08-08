@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase_configuration.js"></script>
+    <script src="auth_guard.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -43,6 +44,19 @@
 
     <script>
         lucide.createIcons();
+
+        (async function init() {
+            const context = await ThreadsGalleryAuth.protectPage({
+                requiredRole: 'admin',
+                customerUrl: 'home.html',
+                adminUrl: 'admin.html',
+                redirectTo: 'index.html'
+            });
+
+            if (!context) {
+                return;
+            }
+        })();
     </script>
 </body>
 </html>

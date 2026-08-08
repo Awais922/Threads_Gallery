@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threads Gallery | Profile</title>
+    <link rel="icon" type="image/png" href="head.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase_configuration.js"></script>
+    <script src="auth_guard.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-up {
+            animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(13,148,136,0.16),_transparent_34%),linear-gradient(180deg,#f8fafc_0%,#ecfeff_100%)] text-slate-800">
+    <header class="sticky top-0 z-40 border-b border-teal-100/70 bg-white/80 backdrop-blur-xl">
+        <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <a href="home.html" class="flex items-center gap-3 group">
+                <div class="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-teal-100 bg-white shadow-sm transition group-hover:scale-105">
+                    <img src="logo.png" alt="Threads Gallery Logo" class="h-full w-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/f0fdfa/0f766e?text=TG';">
+                </div>
+                <div>
+                    <div class="text-lg font-extrabold tracking-tight text-teal-950">Threads Gallery</div>
+                    <div class="text-xs uppercase tracking-[0.28em] text-teal-600">Customer Profile</div>
+                </div>
+            </a>
+
+            <div class="flex items-center gap-3 sm:gap-4">
+                <a href="home.html" class="inline-flex items-center gap-2 rounded-2xl border border-teal-100 bg-white px-4 py-2.5 text-sm font-semibold text-teal-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-teal-50">
+                    <i data-lucide="shopping-bag" class="h-4 w-4"></i>
+                    Storefront
+                </a>
+                <a href="#" onclick="ThreadsGalleryAuth.safeSignOut('index.html'); return false;" class="inline-flex items-center gap-2 rounded-2xl bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-teal-700/20 transition hover:-translate-y-0.5 hover:bg-teal-800">
+                    <i data-lucide="log-out" class="h-4 w-4"></i>
+                    Sign Out
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <section class="animate-fade-up overflow-hidden rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_24px_90px_rgba(15,118,110,0.08)] backdrop-blur-xl sm:p-8 lg:p-10">
+            <div class="grid gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-start">
+                <div>
+                    <div class="inline-flex items-center gap-2 rounded-full bg-teal-50 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-teal-700">
+                        <i data-lucide="user-circle-2" class="h-4 w-4"></i>
+                        Account Overview
+                    </div>
+                    <h1 id="profile-greeting" class="mt-5 text-3xl font-extrabold tracking-tight text-teal-950 sm:text-4xl">Loading profile...</h1>
+                    <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
+                        Your registration details are shown below. Delivery information starts empty so you can add a fresh shipping address for orders.
+                    </p>
+
+                    <div class="mt-8 grid gap-4 sm:grid-cols-2">
+                        <div class="rounded-3xl border border-slate-100 bg-slate-50/80 p-5">
+                            <div class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Account Status</div>
+                            <div id="account-role" class="mt-2 text-lg font-bold text-teal-900">Customer</div>
+                        </div>
+                        <div class="rounded-3xl border border-slate-100 bg-slate-50/80 p-5">
+                            <div class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Email</div>
+                            <div id="profile-email-card" class="mt-2 text-lg font-bold text-teal-900">Loading...</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <div class="rounded-3xl border border-teal-100 bg-white p-5 shadow-sm">
+                            <div class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Full Name</div>
+                            <div id="profile-fullname" class="mt-2 break-words text-base font-semibold text-slate-900">-</div>
+                        </div>
+                        <div class="rounded-3xl border border-teal-100 bg-white p-5 shadow-sm">
+                            <div class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Phone Number</div>
+                            <div id="profile-phone" class="mt-2 break-words text-base font-semibold text-slate-900">-</div>
+                        </div>
+                        <div class="rounded-3xl border border-teal-100 bg-white p-5 shadow-sm">
+                            <div class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Country</div>
+                            <div id="profile-country" class="mt-2 break-words text-base font-semibold text-slate-900">-</div>
+                        </div>
+                        <div class="rounded-3xl border border-teal-100 bg-white p-5 shadow-sm">
+                            <div class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Date of Birth</div>
+                            <div id="profile-dob" class="mt-2 break-words text-base font-semibold text-slate-900">-</div>
+                        </div>
+                        <div class="rounded-3xl border border-teal-100 bg-white p-5 shadow-sm sm:col-span-2 lg:col-span-1">
+                            <div class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Password</div>
+                            <div class="mt-2 text-base font-semibold text-slate-900">Hidden for security</div>
+                        </div>
+                    </div>
+                </div>
+
+                <aside class="rounded-[1.75rem] border border-teal-100 bg-gradient-to-br from-teal-50 to-white p-5 shadow-sm sm:p-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-xl font-extrabold tracking-tight text-teal-950">Delivery Address</h2>
+                            <p class="mt-1 text-sm text-slate-600">Fill this out for shipping details.</p>
+                        </div>
+                        <span class="rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-teal-700 shadow-sm">Optional</span>
+                    </div>
+
+                    <div id="address-message" class="hidden mt-4 rounded-2xl px-4 py-3 text-sm font-medium"></div>
+
+                    <form id="address-form" class="mt-6 space-y-4" onsubmit="saveAddress(event)">
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <label class="block">
+                                <span class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-500">House No.</span>
+                                <input id="house_no" type="text" placeholder="House / Plot number" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder-slate-400 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10">
+                            </label>
+                            <label class="block">
+                                <span class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Street Name</span>
+                                <input id="street_name" type="text" placeholder="Street name" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder-slate-400 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10">
+                            </label>
+                        </div>
+
+                        <label class="block">
+                            <span class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Near Landmark</span>
+                            <input id="near_landmark" type="text" placeholder="Nearby landmark" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder-slate-400 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10">
+                        </label>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <label class="block">
+                                <span class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Town</span>
+                                <input id="town" type="text" placeholder="Town" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder-slate-400 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10">
+                            </label>
+                            <label class="block">
+                                <span class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-500">City</span>
+                                <input id="city" type="text" placeholder="City" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder-slate-400 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10">
+                            </label>
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <label class="block">
+                                <span class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Province</span>
+                                <input id="province" type="text" placeholder="Province" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder-slate-400 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10">
+                            </label>
+                            <label class="block">
+                                <span class="mb-2 block text-xs font-bold uppercase tracking-[0.2em] text-slate-500">State</span>
+                                <input id="state" type="text" placeholder="State" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder-slate-400 outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10">
+                            </label>
+                        </div>
+
+                        <button id="save-address-btn" type="submit" class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-teal-700 px-5 py-3.5 font-semibold text-white shadow-lg shadow-teal-700/20 transition hover:-translate-y-0.5 hover:bg-teal-800">
+                            <i data-lucide="save" class="h-4 w-4"></i>
+                            <span id="save-address-label">Save Address</span>
+                        </button>
+                    </form>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const addressTableName = 'user_addresses';
+
+        lucide.createIcons();
+
+        function safeText(value, fallback = '-') {
+            const text = String(value || '').trim();
+            return text || fallback;
+        }
+
+        function formatDate(value) {
+            if (!value) return '-';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return safeText(value);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function showMessage(text, isError = false) {
+            const messageBox = document.getElementById('address-message');
+            messageBox.textContent = text;
+            messageBox.className = `mt-4 rounded-2xl px-4 py-3 text-sm font-medium ${isError ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            messageBox.classList.remove('hidden');
+        }
+
+        function setSaveState(isSaving) {
+            const button = document.getElementById('save-address-btn');
+            const label = document.getElementById('save-address-label');
+            button.disabled = isSaving;
+            button.classList.toggle('opacity-70', isSaving);
+            button.classList.toggle('cursor-not-allowed', isSaving);
+            if (label) {
+                label.textContent = isSaving ? 'Saving...' : 'Save Address';
+            }
+
+            const icon = button.querySelector('[data-lucide]');
+            if (icon) {
+                icon.setAttribute('data-lucide', isSaving ? 'loader-circle' : 'save');
+                lucide.createIcons();
+            }
+        }
+
+        function fillRegistrationData(context, address = null) {
+            const user = context.user;
+            const metadata = user?.user_metadata || {};
+
+            const fullName = context.profile?.full_name || metadata.full_name || 'User';
+            const email = user?.email || context.profile?.email || '-';
+            const phoneNumber = context.profile?.phone_number || metadata.phone_number || '-';
+            const country = context.profile?.country || metadata.country || '-';
+            const dob = context.profile?.date_of_birth || metadata.dob || '-';
+
+            document.getElementById('profile-greeting').textContent = `Welcome, ${fullName}`;
+            document.getElementById('account-role').textContent = 'Customer';
+            document.getElementById('profile-email-card').textContent = email;
+            document.getElementById('profile-fullname').textContent = safeText(fullName);
+            document.getElementById('profile-phone').textContent = safeText(phoneNumber);
+            document.getElementById('profile-country').textContent = safeText(country);
+            document.getElementById('profile-dob').textContent = formatDate(dob);
+
+            if (address) {
+                document.getElementById('house_no').value = address.house_no || '';
+                document.getElementById('street_name').value = address.street_name || '';
+                document.getElementById('near_landmark').value = address.near_landmark || '';
+                document.getElementById('town').value = address.town || '';
+                document.getElementById('city').value = address.city || '';
+                document.getElementById('province').value = address.province || '';
+                document.getElementById('state').value = address.state || '';
+                return;
+            }
+
+            document.getElementById('address-form').reset();
+        }
+
+        async function loadAddress(userId) {
+            const { data, error } = await window.supabaseClient
+                .from(addressTableName)
+                .select('*')
+                .eq('user_id', userId)
+                .maybeSingle();
+
+            if (error) {
+                console.warn('Address lookup failed:', error.message);
+                return null;
+            }
+
+            return data || null;
+        }
+
+        async function saveAddress(event) {
+            event.preventDefault();
+
+            const context = window.__threadsgalleryProfileContext;
+            if (!context?.user?.id) {
+                showMessage('Session not ready. Please refresh the page.', true);
+                return;
+            }
+
+            if (!window.supabaseClient) {
+                showMessage('Supabase is not initialized. Check the configuration file.', true);
+                return;
+            }
+
+            const payload = {
+                user_id: context.user.id,
+                house_no: document.getElementById('house_no').value.trim(),
+                street_name: document.getElementById('street_name').value.trim(),
+                near_landmark: document.getElementById('near_landmark').value.trim(),
+                town: document.getElementById('town').value.trim(),
+                city: document.getElementById('city').value.trim(),
+                province: document.getElementById('province').value.trim(),
+                state: document.getElementById('state').value.trim(),
+                is_default: true
+            };
+
+            setSaveState(true);
+
+            try {
+                const { error } = await window.supabaseClient
+                    .from(addressTableName)
+                    .upsert(payload, { onConflict: 'user_id' });
+
+                if (error) {
+                    showMessage(error.message || 'Unable to save address.', true);
+                    return;
+                }
+
+                showMessage('Delivery address saved successfully.');
+            } finally {
+                setSaveState(false);
+            }
+        }
+
+        (async function init() {
+            const context = await ThreadsGalleryAuth.protectPage({
+                requiredRole: 'customer',
+                customerUrl: 'home.html',
+                adminUrl: 'admin.html',
+                redirectTo: 'index.html',
+                onAuthenticated: async (profileContext) => {
+                    window.__threadsgalleryProfileContext = profileContext;
+                    const address = await loadAddress(profileContext.user.id);
+                    fillRegistrationData(profileContext, address);
+                }
+            });
+
+            if (!context) {
+                return;
+            }
+
+            window.__threadsgalleryProfileContext = context;
+            const address = await loadAddress(context.user.id);
+            fillRegistrationData(context, address);
+        })();
+    </script>
+</body>
+</html>
